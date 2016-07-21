@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react';
 import Radium from 'radium';
 
-import FilterLink from './FilterLink';
+import FilterList from './FilterList';
 
 const LayoutRaw = React.createClass({
    propTypes: {
@@ -26,68 +26,52 @@ const LayoutRaw = React.createClass({
    },
    
    toggleTodo(id) {
-      return () =>
-         this.props.dispatch({
-            type: 'TOGGLE_TODO',
-            id
-         });
+      this.props.dispatch({
+         type: 'TOGGLE_TODO',
+         id
+      });
    },
    
-   renderTodo(todo) {
-      if (this.props.visibilityFilter === 'SHOW_ACTIVE') {
-         if (todo.completed) {
-            return '';
-         }
-      } else if (this.props.visibilityFilter === 'SHOW_COMPLETED') {
-         if (!todo.completed) {
-            return '';
-         }
+   todoTest(todo) {
+      switch(this.props.visibilityFilter) {
+      case 'SHOW_ACTIVE':
+         return !todo.completed;
+      case 'SHOW_COMPLETED':
+         return todo.completed;
+      default:
+         return true;
       }
-
-      return (
-         <li key={todo.id}
-             style={styles[todo.completed && 'completed']}
-             onClick={this.toggleTodo(todo.id)}>
-            {todo.text}
-         </li>
-      );
    },
    
+   updateFilter(filter) {
+      this.props.dispatch({
+         type: 'SET_VISIBILITY_FILTER',
+         filter
+      });
+   },
+
    render() {
-      const todoList = this.props.todos.map(this.renderTodo);
-      const currentFilter = this.props.visibilityFilter;
+      const filters = [
+         { name: 'SHOW_ALL',       text: 'All' },
+         { name: 'SHOW_ACTIVE',    text: 'Not Completed' },
+         { name: 'SHOW_COMPLETED', text: 'Completed' },
+      ];
 
       return (
          <div>
             <input ref="todoText" />
             <button onClick={this.addTodo}>Add Todo</button>
-            <ul>
-               {todoList}
-            </ul>
-            <p>
-               Show: {' '}
-               <FilterLink filter="SHOW_ALL" onClick={this.changeVisibilityFilter} currentFilter={currentFilter}>
-                  All
-               </FilterLink> | {' '}
-
-               <FilterLink filter="SHOW_ACTIVE" onClick={this.changeVisibilityFilter} currentFilter={currentFilter}>
-                  Not completed
-               </FilterLink> | {' '}
-
-               <FilterLink filter="SHOW_COMPLETED" onClick={this.changeVisibilityFilter} currentFilter={currentFilter}>
-                  Completed
-               </FilterLink>
-            </p>
+            <FilterList
+               filters={filters}
+               currentFilter={this.props.visibilityFilter}
+               filterTest={this.todoTest}
+               onFilterClick={this.updateFilter}
+               items={this.props.todos}
+               onItemClick={this.toggleTodo} />
          </div>
       );
    }
 });
-
-const styles = {
-   completed: {
-      textDecoration: 'line-through'
-   }
-};
 
 const Layout = Radium(LayoutRaw);
 export default Layout;

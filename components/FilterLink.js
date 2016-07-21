@@ -1,34 +1,33 @@
 import React, { PropTypes } from 'react';
 import Radium from 'radium';
 
-const FilterLinkRaw = React.createClass({
-   propTypes: {
-      dispatch: PropTypes.func.isRequired,
-      filter: PropTypes.string.isRequired,
-      currentFilter: PropTypes.string
-   },
+const FilterLinkRaw = (props) => {
+   const { filter, currentFilter, children } = props;
 
-   onClick(event) {
+   const onClick = (event) => {
       event.preventDefault();
-      this.props.dispatch({
-         type: 'SET_VISIBILITY_FILTER',
-         filter: this.props.filter
-      });
-   },
-   
-   render() {
-      if (this.props.currentFilter === this.props.filter) {
-         return <span>{this.props.children}</span>;
-      } else {
-         return (
-            <a href="#" onClick={this.onClick}>
-               {this.props.children}
-            </a>
-         );
+      if (typeof props.onClick === 'function') {
+         props.onClick();
       }
-   }
-});
+   };
 
+   if (filter === currentFilter) {
+      return <span>{children}</span>;
+   } else {
+      return (
+         <a href="#" onClick={onClick}>
+            {children}
+         </a>
+      );
+   }
+};
+
+FilterLinkRaw.propTypes = {
+   filter:        PropTypes.string.isRequired,
+   currentFilter: PropTypes.string,
+   onClick:       PropTypes.func,
+   children:      PropTypes.node
+};
 
 const FilterLink = Radium(FilterLinkRaw);
 export default FilterLink;
