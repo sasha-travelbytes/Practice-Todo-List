@@ -1,10 +1,13 @@
 import React, { PropTypes } from 'react';
 import Radium from 'radium';
 
+import FilterLink from './FilterLink';
+
 const LayoutRaw = React.createClass({
    propTypes: {
       todos: PropTypes.array.isRequired,
-      dispatch: PropTypes.func.isRequired
+      dispatch: PropTypes.func.isRequired,
+      visibilityFilter: PropTypes.string.isRequired
    },
 
    getInitialState() {
@@ -29,17 +32,31 @@ const LayoutRaw = React.createClass({
             id
          });
    },
-                                 
-   render() {
-      const todoList = this.props.todos.map(
-         todo => (
-            <li key={todo.id}
-                style={styles[todo.completed && 'completed']}
-                onClick={this.toggleTodo(todo.id)}>
-               {todo.text}
-            </li>
-         )
+   
+   renderTodo(todo) {
+      if (this.props.visibilityFilter === 'SHOW_ACTIVE') {
+         if (todo.completed) {
+            return '';
+         }
+      } else if (this.props.visibilityFilter === 'SHOW_COMPLETED') {
+         if (!todo.completed) {
+            return '';
+         }
+      }
+
+      return (
+         <li key={todo.id}
+             style={styles[todo.completed && 'completed']}
+             onClick={this.toggleTodo(todo.id)}>
+            {todo.text}
+         </li>
       );
+   },
+   
+   render() {
+      const todoList = this.props.todos.map(this.renderTodo);
+      const currentFilter = this.props.visibilityFilter;
+
       return (
          <div>
             <input ref="todoText" />
@@ -47,6 +64,20 @@ const LayoutRaw = React.createClass({
             <ul>
                {todoList}
             </ul>
+            <p>
+               Show: {' '}
+               <FilterLink filter="SHOW_ALL" onClick={this.changeVisibilityFilter} currentFilter={currentFilter}>
+                  All
+               </FilterLink> | {' '}
+
+               <FilterLink filter="SHOW_ACTIVE" onClick={this.changeVisibilityFilter} currentFilter={currentFilter}>
+                  Not completed
+               </FilterLink> | {' '}
+
+               <FilterLink filter="SHOW_COMPLETED" onClick={this.changeVisibilityFilter} currentFilter={currentFilter}>
+                  Completed
+               </FilterLink>
+            </p>
          </div>
       );
    }

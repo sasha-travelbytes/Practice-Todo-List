@@ -60,8 +60,8 @@ const store = createStore(todoApp);
 
 const render = () => {
    ReactDOM.render(
-      <Layout todos={store.getState().todos}
-              dispatch={store.dispatch}/>,
+      <Layout {...store.getState()}
+              dispatch={store.dispatch} />,
       document.getElementById('container'));
 };
 
